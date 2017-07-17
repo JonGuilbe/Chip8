@@ -78,6 +78,8 @@ void emulateCycle(){
                     pc += 2;
                     break;
                 case 0x00EE:
+                    pc = stack[sp];
+                    sp--;
                     //Return
                     break;
                 default:
@@ -92,6 +94,9 @@ void emulateCycle(){
             break;
         case 0x2000:
             //Call NNN
+            stack[sp] = pc;
+            ++sp;
+            pc = opcode & 0x0FFF;
             break;
         case 0x3000:
             //Skip next instruction (increment PC?) if V[X] == NN
@@ -155,10 +160,17 @@ void emulateCycle(){
                 case 0x0004:
                     //V[x] = V[x] + V[y], set carry flag as needed
                     V[x] = V[x] + V[y]; //Still need to do the carry flag for all these opcodes!
+                    if (V[x] > 255){
+                        v[15] = 1;
+                        V[x] = V[x] & 0x0FFFF;
+                    }
                     pc += 2;
                     break;
                 case 0x0005:
                     //V[x] = V[x] - V[y], set carry flag when there isn't a borrow, 0 when there is
+                    if(V[x] > V[y]){
+                        v[15] = 1;
+                    }
                     V[x] = V[x] - V[y];
                     pc += 2;
                     break;
@@ -170,6 +182,9 @@ void emulateCycle(){
                     break;
                 case 0x0007:
                     //V[x] = V[y] - V[x], set carry flag when there isn't a borrow, 0 when there is
+                    if(V[y] > V[x]){
+                        v[15] = 1;
+                    }
                     V[x] = V[y] - V[x];
                     pc += 2;
                     break;
