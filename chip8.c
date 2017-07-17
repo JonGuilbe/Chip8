@@ -7,7 +7,7 @@ unsigned char V[16]; //Registers, 16th is the Carry flag
 unsigned short I; //Index Register
 unsigned short pc; //Program Counter
 
-unsigned char gfx[64 * 32]; //Display
+unsigned char gfx[64][32]; //Display
 
 unsigned char delay_timer;
 unsigned char sound_timer;
@@ -28,6 +28,13 @@ void loadGame(char[] name){
     //Open file here
 }
 
+void clearScreen(){
+    unsigned char *gfxPointer = gfx;
+    for(i = 0; i < 64*32; i++){
+        *(gfxPointer + i) = 0;
+    }
+}
+
 void initialize(){
     pc = 0x200;
     opcode = 0;
@@ -44,9 +51,7 @@ void initialize(){
         V[i] = 0;
     }
     //Clear Screen
-    for(i = 0; i < 64*32; i++){
-        gfx[i] = 0;
-    }
+    clearScreen();
     for(i = 0; i < 16; i++){
         stack[i] = 0;
     }
@@ -72,9 +77,7 @@ void emulateCycle(){
             switch(opcode){
                 case 0x00E0: 
                     //Clear Display
-                     for(i = 0; i < 64*32; i++){
-                        gfx[i] = 0;
-                    }
+                    clearScreen();
                     pc += 2;
                     break;
                 case 0x00EE:
